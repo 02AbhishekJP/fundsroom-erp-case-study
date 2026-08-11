@@ -11,7 +11,6 @@ import {
   Package,
   User,
   Calendar,
-  Filter,
 } from 'lucide-react';
 
 interface StockMovement {

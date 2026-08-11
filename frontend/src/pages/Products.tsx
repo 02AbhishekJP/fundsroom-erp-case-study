@@ -3,7 +3,7 @@ import api from '../api';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { Package, Search, Filter, Edit2, AlertCircle, Plus, ArrowUpDown, Minus } from 'lucide-react';
-import { Canvas, useFrame, useLoader } from '@react-three/fiber';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { Float, Environment, ContactShadows } from '@react-three/drei';
 import * as THREE from 'three';
 import ProductModal from '../components/ProductModal';
@@ -40,7 +40,7 @@ function ProductImageBillboard({ imageUrl, fallbackColor }: { imageUrl?: string;
   });
 
   if (texture) {
-    const aspect = texture.image ? texture.image.width / texture.image.height : 1;
+    const aspect = texture.image ? (texture.image as any).width / (texture.image as any).height : 1;
     const h = 2.2;
     const w = h * aspect;
     return (
