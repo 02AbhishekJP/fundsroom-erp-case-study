@@ -24,8 +24,9 @@ services:
       - key: DB_SSL
         value: 'true'
 
-  - type: static
+  - type: web
     name: fundsroom-ui
+    env: static
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
