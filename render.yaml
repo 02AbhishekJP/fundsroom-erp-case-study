@@ -22,7 +22,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: DB_SSL
-        value: 'true'
+        value: 'false'
 
   - type: web
     name: fundsroom-ui
