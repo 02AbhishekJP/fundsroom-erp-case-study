@@ -330,7 +330,7 @@ router.delete(
       }
       
       await pool.query('DELETE FROM customers WHERE id = $1', [id]);
-      await logAudit(req.user!, 'DELETE_CUSTOMER', 'customer', id, { name: existing.rows[0].name });
+      await logAudit(req.user!, 'DELETE_CUSTOMER', 'customer', id as string, { name: existing.rows[0].name });
       
       res.json({ success: true, message: 'Customer deleted successfully.' });
     } catch (error) {
