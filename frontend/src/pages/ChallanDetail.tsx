@@ -19,7 +19,10 @@ import {
   Undo2,
   Loader2,
   IndianRupee,
+  Download,
 } from 'lucide-react';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface ChallanItem {
   id: string;
@@ -136,6 +139,69 @@ export default function ChallanDetail() {
     }
   };
 
+  const generatePDF = () => {
+    if (!challan) return;
+    const doc = new jsPDF();
+    
+    // Header
+    doc.setFontSize(22);
+    doc.setTextColor(40);
+    doc.text('FUNDSROOM ERP', 14, 22);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text('Sales Challan / Invoice', 14, 30);
+    
+    // Challan details
+    doc.setFontSize(11);
+    doc.setTextColor(40);
+    doc.text(`Challan No: ${challan.challan_number}`, 14, 45);
+    doc.text(`Date: ${new Date(challan.created_at).toLocaleDateString()}`, 14, 52);
+    doc.text(`Status: ${challan.status.toUpperCase()}`, 14, 59);
+
+    // Billed to
+    doc.setFontSize(11);
+    doc.text('Billed To:', 120, 45);
+    doc.setFontSize(10);
+    doc.setTextColor(80);
+    doc.text(challan.customer_company || challan.customer_name, 120, 52);
+    if (challan.customer_email) doc.text(challan.customer_email, 120, 57);
+    if (challan.customer_phone) doc.text(challan.customer_phone, 120, 62);
+
+    // Line items table
+    const tableColumn = ["SKU", "Product", "Qty", "Unit Price", "Total"];
+    const tableRows = challan.items.map(item => [
+      item.product_sku,
+      item.product_name,
+      item.quantity,
+      `Rs. ${Number(item.unit_price).toLocaleString()}`,
+      `Rs. ${Number(item.total_price).toLocaleString()}`
+    ]);
+
+    autoTable(doc, {
+      startY: 75,
+      head: [tableColumn],
+      body: tableRows,
+      theme: 'grid',
+      headStyles: { fillColor: [6, 182, 212] }, // Cyan color
+    });
+
+    // Total
+    const finalY = (doc as any).lastAutoTable.finalY || 75;
+    doc.setFontSize(12);
+    doc.setTextColor(0);
+    doc.text(`Total Amount: Rs. ${Number(challan.total_amount).toLocaleString()}`, 14, finalY + 15);
+
+    // Watermark if draft or cancelled
+    if (challan.status !== 'confirmed') {
+      doc.setTextColor(200, 200, 200);
+      doc.setFontSize(60);
+      doc.text(challan.status.toUpperCase(), 105, finalY + 50, { align: 'center', angle: 45 });
+    }
+
+    doc.save(`${challan.challan_number}.pdf`);
+  };
+
   const getStatusConfig = (status: string) => {
     switch (status) {
       case 'confirmed':
@@ -208,6 +274,14 @@ export default function ChallanDetail() {
           </div>
           <p className="text-sm text-cyan-300/70 font-mono mt-1">SALES CHALLAN DETAILS</p>
         </div>
+        
+        <button
+          onClick={generatePDF}
+          className="btn text-sm px-4 py-2 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 flex items-center gap-2"
+        >
+          <Download size={16} />
+          Download PDF
+        </button>
       </div>
 
       {/* Challan Header Card */}
