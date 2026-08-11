@@ -58,6 +58,9 @@ cd fundsroom-erp
 docker-compose up --build -d
 ```
 
+### ☁️ AWS EC2 Production Deployment
+For deploying to a production AWS environment using environment variables and documented server setup, please refer to the comprehensive **[AWS Deployment Guide](./AWS_DEPLOYMENT.md)** included in this repository.
+
 - **Frontend Application**: `http://localhost:8080`
 - **Backend API**: `http://localhost:3000`
 
