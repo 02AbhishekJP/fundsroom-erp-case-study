@@ -171,9 +171,13 @@ export default function CustomerModal({ isOpen, onClose, onSave, customer }: Cus
               <input
                 name="phone"
                 className="input-glass"
-                placeholder="e.g. +91-9876543210"
+                placeholder="e.g. 9876543210"
                 value={form.phone}
                 onChange={handleChange}
+                pattern="\d{10}"
+                maxLength={10}
+                minLength={10}
+                title="Phone number must be exactly 10 digits"
               />
             </div>
 
@@ -183,9 +187,12 @@ export default function CustomerModal({ isOpen, onClose, onSave, customer }: Cus
               <input
                 name="gst"
                 className="input-glass"
-                placeholder="e.g. 27AABCU9603R1ZP"
+                placeholder="e.g. 27ABCDE1234F"
                 value={form.gst}
                 onChange={handleChange}
+                minLength={12}
+                maxLength={12}
+                title="GST number must be exactly 12 characters or left empty"
               />
             </div>
 

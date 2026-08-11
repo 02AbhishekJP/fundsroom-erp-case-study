@@ -148,9 +148,9 @@ router.post(
   validate([
     body('name').trim().notEmpty().withMessage('Customer name is required'),
     body('email').optional({ nullable: true }).isEmail().withMessage('Valid email required'),
-    body('phone').optional({ nullable: true }).trim(),
+    body('phone').optional({ checkFalsy: true }).trim().matches(/^\\d{10}$/).withMessage('Phone number must be exactly 10 digits'),
     body('company').optional({ nullable: true }).trim(),
-    body('gst').optional({ nullable: true }).trim(),
+    body('gst').optional({ checkFalsy: true }).trim().isLength({ min: 12, max: 12 }).withMessage('GST number must be exactly 12 characters or left empty'),
     body('address').optional({ nullable: true }).trim(),
     body('status').optional().isIn(['lead', 'active', 'inactive']).withMessage('Status must be lead, active, or inactive'),
     body('type').optional().isIn(['retail', 'wholesale', 'distributor']).withMessage('Type must be retail, wholesale, or distributor'),
@@ -199,6 +199,8 @@ router.put(
   validate([
     body('name').optional().trim().notEmpty().withMessage('Customer name cannot be empty'),
     body('email').optional({ nullable: true }).isEmail().withMessage('Valid email required'),
+    body('phone').optional({ checkFalsy: true }).trim().matches(/^\\d{10}$/).withMessage('Phone number must be exactly 10 digits'),
+    body('gst').optional({ checkFalsy: true }).trim().isLength({ min: 12, max: 12 }).withMessage('GST number must be exactly 12 characters or left empty'),
     body('status').optional().isIn(['lead', 'active', 'inactive']),
     body('type').optional().isIn(['retail', 'wholesale', 'distributor']),
     body('follow_up_date').optional({ nullable: true }),
@@ -309,6 +311,31 @@ router.get(
       res.json({ success: true, data: result.rows });
     } catch (error) {
       res.status(500).json({ success: false, message: 'Failed to fetch challans.' });
+    }
+  }
+);
+
+// DELETE /api/customers/:id — Delete customer
+router.delete(
+  '/:id',
+  authorize('admin', 'sales'),
+  async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params;
+      
+      const existing = await pool.query('SELECT name FROM customers WHERE id = $1', [id]);
+      if (existing.rows.length === 0) {
+        res.status(404).json({ success: false, message: 'Customer not found.' });
+        return;
+      }
+      
+      await pool.query('DELETE FROM customers WHERE id = $1', [id]);
+      await logAudit(req.user!, 'DELETE_CUSTOMER', 'customer', id, { name: existing.rows[0].name });
+      
+      res.json({ success: true, message: 'Customer deleted successfully.' });
+    } catch (error) {
+      console.error('Error deleting customer:', error);
+      res.status(500).json({ success: false, message: 'Failed to delete customer. Cannot delete customers with existing sales challans.' });
     }
   }
 );

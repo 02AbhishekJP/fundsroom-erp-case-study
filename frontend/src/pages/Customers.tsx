@@ -4,7 +4,7 @@ import api from '../api';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import CustomerModal from '../components/CustomerModal';
-import { Users as UsersIcon, Search, MapPin, Mail, Phone, Calendar, Building, CheckCircle2, ShieldAlert, ChevronRight, Plus, Edit2 } from 'lucide-react';
+import { Users as UsersIcon, Search, MapPin, Mail, Phone, Calendar, Building, CheckCircle2, ShieldAlert, ChevronRight, Plus, Edit2, Trash2 } from 'lucide-react';
 
 interface Customer {
   id: string;
@@ -80,6 +80,18 @@ export default function Customers() {
       showToast('success', 'Client registered successfully.');
     }
     fetchCustomers();
+  };
+
+  const handleDeleteCustomer = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    if (!window.confirm('Are you sure you want to delete this client?')) return;
+    try {
+      await api.delete(`/customers/${id}`);
+      showToast('success', 'Client deleted successfully');
+      fetchCustomers();
+    } catch (err: any) {
+      showToast('error', err.response?.data?.message || 'Failed to delete client');
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -230,12 +242,21 @@ export default function Customers() {
                     )}
                   </div>
                   {canEdit ? (
-                    <button
-                      className="text-indigo-400 hover:text-indigo-300 flex items-center text-xs font-medium bg-indigo-500/10 hover:bg-indigo-500/20 px-2 py-1 rounded transition-colors group/btn"
-                      onClick={(e) => { e.stopPropagation(); setEditingCustomer(customer); setModalOpen(true); }}
-                    >
-                      <Edit2 size={12} className="mr-1" /> Edit <ChevronRight size={14} className="ml-1 group-hover/btn:translate-x-0.5 transition-transform" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        className="text-indigo-400 hover:text-indigo-300 flex items-center text-xs font-medium bg-indigo-500/10 hover:bg-indigo-500/20 px-2 py-1 rounded transition-colors group/btn"
+                        onClick={(e) => { e.stopPropagation(); setEditingCustomer(customer); setModalOpen(true); }}
+                      >
+                        <Edit2 size={12} className="mr-1" /> Edit
+                      </button>
+                      <button
+                        className="text-rose-400 hover:text-rose-300 flex items-center text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 px-2 py-1 rounded transition-colors"
+                        onClick={(e) => handleDeleteCustomer(e, customer.id)}
+                        title="Delete Client"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   ) : (
                     <span className="text-indigo-400/50 flex items-center text-xs font-medium px-2 py-1">
                       Details <ChevronRight size={14} className="ml-1" />
