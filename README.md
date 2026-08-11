@@ -58,8 +58,16 @@ cd fundsroom-erp
 docker-compose up --build -d
 ```
 
-### ☁️ AWS EC2 Production Deployment
-For deploying to a production AWS environment using environment variables and documented server setup, please refer to the comprehensive **[AWS Deployment Guide](./AWS_DEPLOYMENT.md)** included in this repository.
+### ☁️ Render (Free Tier) Deployment
+This project is configured for automated deployment via Render's "Infrastructure as Code" blueprints.
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://dashboard.render.com/select-repo?type=blueprint)
+
+1. Push this repository to GitHub.
+2. Go to [Render Dashboard](https://dashboard.render.com).
+3. Click **New** > **Blueprint**.
+4. Connect your GitHub repository.
+5. Render will automatically read the `render.yaml` file and deploy the PostgreSQL Database, Node.js API, and React Frontend completely free of charge!
 
 - **Frontend Application**: `http://localhost:8080`
 - **Backend API**: `http://localhost:3000`
